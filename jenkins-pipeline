@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+    stages {
+        stage('enable nmt scale'){
+            steps {
+                sh '''sh /mnt/deploy/script/enable_tencent_nmt.sh'''
+            }
+            post {
+                success {
+                    feiShuTalk (
+                        robot: "e522b94f-5a3f-4674-a30c-04b51727f1a5",
+                        type: "INTERACTIVE",
+                        title: "✅ NMT扩容成功",
+                        text: [
+                            "📋 **任务名称**：翻译扩容结果通知",
+                            "🔢 **任务编号**：[${BUILD_DISPLAY_NAME}](${BUILD_URL})",
+                            "🌟 **构建状态**: <font color='green'>成功</font>",
+                            "🕐 **构建用时**: ${currentBuild.duration} ms"
+                        ],
+                        buttons: [
+                           [
+                              title: "执行记录",
+                              url: "${BUILD_URL}console"
+                           ]
+                           
+                        ]
+                    )
+                }
+                failure {
+                    feiShuTalk (
+                        robot: "e522b94f-5a3f-4674-a30c-04b51727f1a5",
+                        type: "INTERACTIVE",
+                        title: "❌ NMT扩容失败",
+                        text: [
+                            "📋 **任务名称**：翻译扩容结果通知",
+                            "🔢 **任务编号**：[${BUILD_DISPLAY_NAME}](${BUILD_URL})",
+                            "🌟 **构建状态**: <font color='red'>失败</font>",
+                            "🕐 **构建用时**: ${currentBuild.duration} ms",
+                            "<at id=all></at>"
+                        ],
+                        buttons: [
+                           [
+                              title: "执行记录",
+                              type: "danger",
+                              url: "${BUILD_URL}console"
+                           ]
+                        ]
+                    )
+                }
+            }
+        }
+    }
+}
